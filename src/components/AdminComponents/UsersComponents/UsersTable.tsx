@@ -1,22 +1,24 @@
 /** @format */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
-
-interface UserData {
-  userId: string;
-  name: string;
-  email: string;
-  joined: string;
-  careLevel: string;
-}
+import { User } from "@/redux/features/user/userApi";
 
 interface UsersTableProps {
-  users: UserData[];
+  users: User[];
+  onSearch?: (searchTerm: string) => void;
 }
 
-const UsersTable = ({ users }: UsersTableProps) => {
+const UsersTable = ({ users, onSearch }: UsersTableProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    onSearch?.(value);
+  };
+
   return (
     <div className="w-full ">
       <h1 className="text-[#124E78] text-[30px] font-bold tracking-[0.01em] uppercase leading-none mb-7">
@@ -28,6 +30,8 @@ const UsersTable = ({ users }: UsersTableProps) => {
         <input
           type="text"
           placeholder="Search by user id or name"
+          value={searchTerm}
+          onChange={handleSearch}
           className="h-10 w-full rounded-md border border-[#d5d9df] bg-white pl-9 pr-3 text-sm text-[#374151] placeholder:text-[#9ca3af] outline-none focus:border-[#c6ced9]"
         />
       </div>
@@ -56,23 +60,23 @@ const UsersTable = ({ users }: UsersTableProps) => {
           <tbody>
             {users.map((user) => (
               <tr
-                key={`${user.userId}-${user.email}`}
+                key={`${user.user_id}-${user.id}`}
                 className="border-t border-[#e6e9ef]"
               >
                 <td className="px-4 py-4 text-[15px] text-[#1f2937] border-r border-[#e6e9ef]">
-                  {user.userId}
+                  {user.user_id}
                 </td>
                 <td className="px-4 py-4 text-[15px] text-[#1f2937] border-r border-[#e6e9ef]">
                   {user.name}
                 </td>
                 <td className="px-4 py-4 text-[15px] text-[#1f2937] border-r border-[#e6e9ef]">
-                  {user.email}
+                  {user.register_email}
                 </td>
                 <td className="px-4 py-4 text-[15px] text-[#1f2937] border-r border-[#e6e9ef]">
-                  {user.joined}
+                  {new Date(user.joined).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-4 text-[15px] text-[#1f2937]">
-                  {user.careLevel}
+                  {user.care_level || "-"}
                 </td>
               </tr>
             ))}

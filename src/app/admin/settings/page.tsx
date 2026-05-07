@@ -3,7 +3,6 @@
 
 import React from "react";
 import ProfileCard from "@/components/AdminComponents/SettingsComponents/ProfileCard";
-import { useUserRole } from "@/contexts/UserRoleContext";
 
 const adminUser = {
   name: "Admin User",
@@ -13,11 +12,10 @@ const adminUser = {
 };
 
 const SettingPage = () => {
-  const { role } = useUserRole();
 
   const currentUser = {
     ...adminUser,
-    role: role,
+    role: adminUser.role,
   };
 
   return (

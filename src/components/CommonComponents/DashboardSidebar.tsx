@@ -23,7 +23,6 @@ import {
   ShoppingCart,
   Users,
 } from "lucide-react";
-import { useUserRole } from "@/contexts/UserRoleContext";
 import { useState } from "react";
 import LogoutModal from "./LogOutModal";
 
@@ -31,7 +30,6 @@ export default function DashboardSidebar() {
   const { state } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
-  const { role } = useUserRole();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const isCollapsed = state === "collapsed";

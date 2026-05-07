@@ -6,7 +6,7 @@ import "./globals.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/CommonComponents/DashboardSidebar";
 import NavBar from "@/components/CommonComponents/NabBar";
-import { UserRoleProvider } from "@/contexts/UserRoleContext";
+import StoreProvider from "@/redux/StoreProvider";
 
 const asapCondensed = Asap_Condensed({
   variable: "--font-asap-condensed",
@@ -30,9 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${asapCondensed.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${asapCondensed.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col bg-(--color-background)">
-        <UserRoleProvider>
+        <StoreProvider>
           <SidebarProvider>
             <DashboardSidebar />
             <SidebarInset className="overflow-x-hidden">
@@ -44,7 +47,7 @@ export default function RootLayout({
               </div>
             </SidebarInset>
           </SidebarProvider>
-        </UserRoleProvider>
+        </StoreProvider>
       </body>
     </html>
   );

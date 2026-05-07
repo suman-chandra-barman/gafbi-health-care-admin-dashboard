@@ -6,37 +6,45 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import RoleSelector from "./RoleSelector";
-import { useUserRole } from "@/contexts/UserRoleContext";
 import { Eye, EyeOff } from "lucide-react";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { useAppDispatch } from "@/redux/hooks";
+import { setCredentials } from "@/redux/features/auth/authSlice";
 
 const LoginForm = () => {
   const router = useRouter();
-  const { setRole } = useUserRole();
+  const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "user" as "user" | "admin",
-    rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setRole(formData.role);
-    console.log("Login:", formData);
+    setErrorMessage(null);
 
-    if (formData.role === "user") {
-      // Redirect user to gafbi-health-care dashboard
-      // Update the URL based on your deployment environment
-      const gafbiHealthCareUrl =
-        process.env.NEXT_PUBLIC_GAFBI_HEALTH_CARE_URL ||
-        "http://localhost:3000";
-      window.location.href = `${gafbiHealthCareUrl}/dashboard/overview`;
-    } else {
-      // Redirect admin to admin dashboard
-      router.push("/admin/users");
+    try {
+      const payload = await login({
+        email_address: formData.email,
+        password: formData.password,
+      }).unwrap();
+
+      if (payload?.success) {
+        dispatch(
+          setCredentials({
+            user: payload.data.user,
+            tokens: payload.data.tokens,
+          }),
+        );
+        router.push("/admin/users");
+      } else {
+        setErrorMessage(payload?.message || "Login failed.");
+      }
+    } catch {
+      setErrorMessage("Login failed. Please try again.");
     }
   };
 
@@ -83,27 +91,7 @@ const LoginForm = () => {
         </div>
       </div>
 
-      <RoleSelector
-        value={formData.role}
-        onChange={(role) => setFormData({ ...formData, role })}
-      />
-
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="remember"
-            checked={formData.rememberMe}
-            onCheckedChange={(checked) =>
-              setFormData({ ...formData, rememberMe: checked as boolean })
-            }
-          />
-          <label
-            htmlFor="remember"
-            className="text-sm text-tertiary cursor-pointer"
-          >
-            Remember me
-          </label>
-        </div>
         <Link
           href="/reset-pass"
           className="text-sm text-primary hover:underline font-medium"
@@ -112,19 +100,19 @@ const LoginForm = () => {
         </Link>
       </div>
 
-      <Button type="submit" className="w-full h-11 rounded-lg">
-        Sign In
-      </Button>
+      {errorMessage && (
+        <p className="text-sm text-red-500" role="alert">
+          {errorMessage}
+        </p>
+      )}
 
-      <p className="text-center text-sm text-tertiary">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/sign-up"
-          className="text-primary hover:underline font-medium"
-        >
-          Sign Up
-        </Link>
-      </p>
+      <Button
+        type="submit"
+        className="w-full h-11 rounded-lg"
+        disabled={isLoading}
+      >
+        {isLoading ? "Signing In..." : "Sign In"}
+      </Button>
     </form>
   );
 };

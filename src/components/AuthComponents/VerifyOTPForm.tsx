@@ -1,13 +1,33 @@
 /** @format */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  useForgotPasswordMutation,
+  useVerifyForgotPasswordOtpMutation,
+} from "@/redux/features/auth/authApi";
+import { useAppDispatch } from "@/redux/hooks";
+import { setCredentials } from "@/redux/features/auth/authSlice";
 
 const VerifyOTPForm = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [verifyOtp, { isLoading }] = useVerifyForgotPasswordOtpMutation();
+  const [resendOtp, { isLoading: isResending }] = useForgotPasswordMutation();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("resetEmail") || "";
+    if (!storedEmail) {
+      router.push("/reset-pass");
+      return;
+    }
+    setEmail(storedEmail);
+  }, [router]);
 
   const handleChange = (index: number, value: string) => {
     if (value.length <= 1 && /^\d*$/.test(value)) {
@@ -32,15 +52,47 @@ const VerifyOTPForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const otpCode = otp.join("");
-    console.log("OTP:", otpCode);
-    router.push("/create-new-pass");
+    setErrorMessage(null);
+
+    try {
+      const payload = await verifyOtp({
+        email_address: email,
+        otp_code: otpCode,
+      }).unwrap();
+
+      if (payload?.success) {
+        if (payload.data?.tokens) {
+          dispatch(
+            setCredentials({
+              user: payload.data.user,
+              tokens: payload.data.tokens,
+            }),
+          );
+        }
+        router.push("/create-new-pass");
+      } else {
+        setErrorMessage(payload?.message || "Verification failed.");
+      }
+    } catch {
+      setErrorMessage("Verification failed. Please try again.");
+    }
   };
 
-  const handleResend = () => {
-    console.log("Resending OTP");
+  const handleResend = async () => {
+    if (!email) return;
+    setErrorMessage(null);
+
+    try {
+      const payload = await resendOtp({ email_address: email }).unwrap();
+      if (!payload?.success) {
+        setErrorMessage(payload?.message || "Resend failed.");
+      }
+    } catch {
+      setErrorMessage("Resend failed. Please try again.");
+    }
   };
 
   return (
@@ -69,8 +121,18 @@ const VerifyOTPForm = () => {
         </div>
       </div>
 
-      <Button type="submit" className="w-full h-11 rounded-lg">
-        Verify Code
+      {errorMessage && (
+        <p className="text-sm text-red-500 text-center" role="alert">
+          {errorMessage}
+        </p>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full h-11 rounded-lg"
+        disabled={isLoading}
+      >
+        {isLoading ? "Verifying..." : "Verify Code"}
       </Button>
 
       <p className="text-center text-sm text-tertiary">
@@ -78,9 +140,10 @@ const VerifyOTPForm = () => {
         <button
           type="button"
           onClick={handleResend}
+          disabled={isResending}
           className="text-primary hover:underline font-medium"
         >
-          Resend
+          {isResending ? "Resending..." : "Resend"}
         </button>
       </p>
     </form>

@@ -6,24 +6,46 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { useAppDispatch } from "@/redux/hooks";
+import { logout } from "@/redux/features/auth/authSlice";
 
 const CreateNewPasswordForm = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      setErrorMessage("Passwords do not match.");
       return;
     }
-    console.log("New password created");
-    router.push("/sign-in");
+    setErrorMessage(null);
+
+    try {
+      const payload = await resetPassword({
+        new_password: formData.password,
+        confirm_password: formData.confirmPassword,
+      }).unwrap();
+
+      if (payload?.success) {
+        localStorage.removeItem("resetEmail");
+        dispatch(logout());
+        router.push("/sign-in");
+      } else {
+        setErrorMessage(payload?.message || "Reset failed.");
+      }
+    } catch {
+      setErrorMessage("Reset failed. Please try again.");
+    }
   };
 
   return (
@@ -83,8 +105,18 @@ const CreateNewPasswordForm = () => {
         </div>
       </div>
 
-      <Button type="submit" className="w-full h-11 rounded-lg">
-        Reset Password
+      {errorMessage && (
+        <p className="text-sm text-red-500" role="alert">
+          {errorMessage}
+        </p>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full h-11 rounded-lg"
+        disabled={isLoading}
+      >
+        {isLoading ? "Resetting..." : "Reset Password"}
       </Button>
     </form>
   );

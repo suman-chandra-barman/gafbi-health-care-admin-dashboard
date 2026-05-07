@@ -3,27 +3,11 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-
-export interface Application {
-  id: string;
-  applicationDate: string;
-  customer: string;
-  email: string;
-  titleFor?: string;
-  firstName?: string;
-  lastName?: string;
-  dateOfBirth?: string;
-  careLevel?: string;
-  streetHouse?: string;
-  area?: string;
-  city?: string;
-  zipCode?: string;
-  phoneNumber?: string;
-}
+import type { ApplicationListItem } from "@/redux/features/application/applicationApi";
 
 interface ApplicationsTableProps {
-  applications: Application[];
-  onViewDetails: (application: Application) => void;
+  applications: ApplicationListItem[];
+  onViewDetails: (id: number) => void;
 }
 
 const ApplicationsTable = ({
@@ -59,7 +43,7 @@ const ApplicationsTable = ({
             {applications.map((application) => (
               <tr key={application.id} className="border-t border-[#e6e9ef]">
                 <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
-                  {application.applicationDate}
+                  {new Date(application.application_date).toLocaleDateString()}
                 </td>
                 <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
                   {application.customer}
@@ -71,8 +55,8 @@ const ApplicationsTable = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onViewDetails(application)}
-                    className="h-8 rounded-md border-[#6b93b3] px-3 text-[14px] font-semibold text-[#165480] hover:bg-[#eff5fa]"
+                    onClick={() => onViewDetails(application.id)}
+                    className="h-8 rounded-md border-[#6b93b3] px-3 text-[14px] font-semibold text-[#165480]"
                   >
                     Applicant Details
                   </Button>

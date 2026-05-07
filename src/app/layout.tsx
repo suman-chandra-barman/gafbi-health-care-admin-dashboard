@@ -3,10 +3,12 @@
 import type { Metadata } from "next";
 import { Asap_Condensed, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/CommonComponents/DashboardSidebar";
 import NavBar from "@/components/CommonComponents/NabBar";
 import StoreProvider from "@/redux/StoreProvider";
+import { ToastContainer } from "react-toastify";
 
 const asapCondensed = Asap_Condensed({
   variable: "--font-asap-condensed",
@@ -47,6 +49,11 @@ export default function RootLayout({
               </div>
             </SidebarInset>
           </SidebarProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={2500}
+            hideProgressBar={false}
+          />
         </StoreProvider>
       </body>
     </html>

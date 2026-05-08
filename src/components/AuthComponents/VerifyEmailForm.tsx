@@ -26,7 +26,7 @@ const VerifyEmailForm = () => {
 
       <div className="space-y-2">
         <p className="text-tertiary text-sm">
-          We've sent a verification link to your email address. Please check
+          We`&apos;ve sent a verification link to your email address. Please check
           your inbox and click the link to verify your account.
         </p>
       </div>

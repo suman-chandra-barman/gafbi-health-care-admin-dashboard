@@ -12,7 +12,6 @@ const NavBar = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
-    console.log("Logging out...");
     setIsLogoutModalOpen(false);
     router.push("/sign-in");
   };

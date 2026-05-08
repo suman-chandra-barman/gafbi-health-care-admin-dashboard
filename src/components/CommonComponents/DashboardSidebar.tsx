@@ -25,7 +25,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import LogoutModal from "./LogOutModal";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { logout } from "@/redux/features/auth/authSlice";
+import { baseApi } from "@/redux/api/baseApi";
 
 export default function DashboardSidebar() {
   const { state } = useSidebar();
@@ -33,8 +35,7 @@ export default function DashboardSidebar() {
   const router = useRouter();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
-
-  console.log("User in DashboardSidebar:", user);
+  const dispatch = useAppDispatch();
 
   const isCollapsed = state === "collapsed";
 
@@ -71,12 +72,13 @@ export default function DashboardSidebar() {
 
   const handleLogout = () => {
     setIsLogoutModalOpen(false);
+    dispatch(logout());
+    dispatch(baseApi.util.resetApiState());
     router.push("/sign-in");
   };
 
   if (
     pathname == "/sign-in" ||
-    pathname == "/sign-up" ||
     pathname == "/create-new-pass" ||
     pathname == "/reset-pass" ||
     pathname == "/verify-email" ||

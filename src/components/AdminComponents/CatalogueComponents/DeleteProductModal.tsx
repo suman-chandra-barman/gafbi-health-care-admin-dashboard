@@ -10,13 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import type { Product } from "./CatalogueTable";
+import type { Product } from "@/redux/features/product/productApi";
 
 interface DeleteProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null;
-  onConfirm: () => void;
+  onConfirm: () => Promise<boolean>;
+  isDeleting?: boolean;
 }
 
 const DeleteProductModal = ({
@@ -24,10 +25,13 @@ const DeleteProductModal = ({
   onClose,
   product,
   onConfirm,
+  isDeleting,
 }: DeleteProductModalProps) => {
-  const handleConfirm = () => {
-    onConfirm();
-    onClose();
+  const handleConfirm = async () => {
+    const wasDeleted = await onConfirm();
+    if (wasDeleted) {
+      onClose();
+    }
   };
 
   return (
@@ -58,9 +62,10 @@ const DeleteProductModal = ({
             <Button
               variant="destructive"
               onClick={handleConfirm}
+              disabled={isDeleting}
               className="w-1/2"
             >
-              Yes, Delete
+              {isDeleting ? "Deleting..." : "Yes, Delete"}
             </Button>
           </div>
         </div>

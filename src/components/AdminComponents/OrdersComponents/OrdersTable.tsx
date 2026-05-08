@@ -1,64 +1,44 @@
 /** @format */
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-export interface Order {
-  id: string;
-  orderId: string;
-  orderDate: string;
-  productId: string;
-  customerName: string;
-  shippingCarrier: string;
-  status: "Shipped" | "Unshipped" | "Cancelled";
-  detailOrderNumber: string;
-  createdDate: string;
-  deliveryDate: string;
-  shippingAddress: string;
-  requestedQty: string;
-  qtyUpdated: string;
-  trackingNo: string;
-  items: OrderItem[];
-}
-
-export interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  subtitle: string;
-}
+import type {
+  OrderListItem,
+  ShipmentStatus,
+} from "@/redux/features/order/orderApi";
 
 interface OrdersTableProps {
-  orders: Order[];
+  orders: OrderListItem[];
+  activeStatus: ShipmentStatus;
+  onStatusChange: (status: ShipmentStatus) => void;
 }
 
-const OrdersTable = ({ orders }: OrdersTableProps) => {
+const statusLabels: Record<ShipmentStatus, string> = {
+  shipped: "Shipped",
+  unshipped: "Unshipped",
+  cancelled: "Cancelled",
+};
+
+const OrdersTable = ({
+  orders,
+  activeStatus,
+  onStatusChange,
+}: OrdersTableProps) => {
   const router = useRouter();
-  const [activeStatus, setActiveStatus] =
-    useState<Order["status"]>("Unshipped");
 
-  const filteredOrders = useMemo(
-    () => orders.filter((order) => order.status === activeStatus),
-    [orders, activeStatus],
-  );
-
-  const handleViewDetails = (order: Order) => {
+  const handleViewDetails = (order: OrderListItem) => {
     router.push(`/admin/orders/${order.id}`);
   };
 
   return (
     <div className="w-full ">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4">
         <h1 className="text-[34px] font-bold uppercase leading-none tracking-[0.01em] text-[#124E78]">
           Manage Orders
         </h1>
-        <Button className="h-11 rounded-md bg-[#165480] px-5 text-[30px] font-medium text-white hover:bg-[#124567]">
-          <Plus className="mr-2 h-5 w-5" />
-          Add a new item
-        </Button>
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-4">
@@ -71,39 +51,39 @@ const OrdersTable = ({ orders }: OrdersTableProps) => {
           />
         </div>
 
-        <div className="flex items-center gap-2 text-[20px]">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setActiveStatus("Shipped")}
+            onClick={() => onStatusChange("shipped")}
             className={`rounded-full px-4 py-1 ${
-              activeStatus === "Shipped"
+              activeStatus === "shipped"
                 ? "bg-[#165480] font-semibold text-white"
-                : "text-[#374151]"
+                : "text-[#374151] border border-[#d5d9df]"
             }`}
           >
-            Shipped
+            {statusLabels.shipped}
           </button>
           <button
             type="button"
-            onClick={() => setActiveStatus("Unshipped")}
+            onClick={() => onStatusChange("unshipped")}
             className={`rounded-full px-4 py-1 ${
-              activeStatus === "Unshipped"
+              activeStatus === "unshipped"
                 ? "bg-[#165480] font-semibold text-white"
-                : "text-[#374151]"
+                : "text-[#374151] border border-[#d5d9df]"
             }`}
           >
-            Unshipped
+            {statusLabels.unshipped}
           </button>
           <button
             type="button"
-            onClick={() => setActiveStatus("Cancelled")}
+            onClick={() => onStatusChange("cancelled")}
             className={`rounded-full px-4 py-1 ${
-              activeStatus === "Cancelled"
+              activeStatus === "cancelled"
                 ? "bg-[#165480] font-semibold text-white"
-                : "text-[#374151]"
+                : "text-[#374151] border border-[#d5d9df]"
             }`}
           >
-            Cancelled
+            {statusLabels.cancelled}
           </button>
         </div>
       </div>
@@ -119,13 +99,10 @@ const OrdersTable = ({ orders }: OrdersTableProps) => {
                 Order Date
               </th>
               <th className="border-r border-[#d8dee6] px-4 py-3 text-[14px] font-medium text-[#315e82]">
-                #Product ID
-              </th>
-              <th className="border-r border-[#d8dee6] px-4 py-3 text-[14px] font-medium text-[#315e82]">
                 Customer
               </th>
               <th className="border-r border-[#d8dee6] px-4 py-3 text-[14px] font-medium text-[#315e82]">
-                Shipping Carrier
+                Shipment Status
               </th>
               <th className="px-4 py-3 text-[14px] font-medium text-[#315e82]">
                 Action
@@ -133,29 +110,26 @@ const OrdersTable = ({ orders }: OrdersTableProps) => {
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map((order) => (
+            {orders.map((order) => (
               <tr key={order.id} className="border-t border-[#e6e9ef]">
                 <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
-                  {order.orderId}
+                  {order.order_id}
                 </td>
                 <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
-                  {order.orderDate}
+                  {order.order_date}
                 </td>
                 <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
-                  {order.productId}
+                  {order.customer}
                 </td>
                 <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
-                  {order.customerName}
-                </td>
-                <td className="border-r border-[#e6e9ef] px-4 py-4 text-[15px] text-[#1f2937]">
-                  {order.shippingCarrier}
+                  {statusLabels[order.shipment_status]}
                 </td>
                 <td className="px-4 py-4">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleViewDetails(order)}
-                    className="h-8 rounded-md border-[#6b93b3] px-3 text-[14px] font-semibold text-[#165480] hover:bg-[#eff5fa]"
+                    className="h-8 rounded-md border-[#6b93b3] px-3 text-[14px] font-semibold text-[#165480]"
                   >
                     Order details
                   </Button>

@@ -43,7 +43,7 @@ export default function RootLayout({
             <SidebarInset className="overflow-x-hidden">
               <NavBar />
               <div
-                className={` bg-root-bg min-h-screen px-6 lg:px-8 py-1 lg:py-2`}
+                className={`bg-root-bg px-6 lg:px-8 py-1 lg:py-2`}
               >
                 {children}
               </div>

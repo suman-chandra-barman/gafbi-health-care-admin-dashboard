@@ -4,15 +4,47 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import OrderDetails from "@/components/AdminComponents/OrdersComponents/OrderDetails";
-import { mockOrders } from "@/data/mockOrders";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useConfirmShipmentMutation,
+  useGetOrderDetailsQuery,
+} from "@/redux/features/order/orderApi";
+import { toast } from "react-toastify";
 
 const OrderDetailsPage = () => {
   const params = useParams();
-  const orderId = params.id as string;
+  const orderId = Number(params.id);
+  const { data, isLoading } = useGetOrderDetailsQuery(orderId, {
+    skip: Number.isNaN(orderId),
+  });
+  const [confirmShipment, { isLoading: isConfirming }] =
+    useConfirmShipmentMutation();
 
-  const order = mockOrders.find((o) => o.id === orderId);
+  const handleConfirmShipment = async () => {
+    if (Number.isNaN(orderId)) {
+      return;
+    }
+    try {
+      await confirmShipment(orderId).unwrap();
+      toast.success("Shipment confirmed.");
+    } catch {
+      toast.error("Failed to confirm shipment.");
+    }
+  };
 
-  if (!order) {
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-6">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-6 w-64" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!data?.data) {
     return (
       <div className="p-4 sm:p-6">
         <div className="text-center py-12">
@@ -29,7 +61,11 @@ const OrderDetailsPage = () => {
 
   return (
     <div className="">
-      <OrderDetails order={order} />
+      <OrderDetails
+        order={data.data}
+        onConfirmShipment={handleConfirmShipment}
+        isConfirming={isConfirming}
+      />
     </div>
   );
 };

@@ -115,6 +115,26 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    updateAdminProfile: builder.mutation({
+      query: (formData) => ({
+        url: "/auth/admin/profile/update/",
+        method: "PATCH",
+        body: formData,
+      }),
+      invalidatesTags: ["User"],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          const payload =
+            data?.data?.user ?? data?.data ?? data?.user ?? undefined;
+          if (data?.success && payload) {
+            dispatch(updateUser(payload));
+          }
+        } catch {
+          // silently ignore
+        }
+      },
+    }),
   }),
 });
 
@@ -130,4 +150,5 @@ export const {
   useGetMeQuery,
   useGetUserAccountSettingsQuery,
   useUpdateUserAccountMutation,
+  useUpdateAdminProfileMutation,
 } = authApi;

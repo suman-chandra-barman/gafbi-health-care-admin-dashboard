@@ -128,23 +128,25 @@ export default function DashboardSidebar() {
           <div className="mb-4 px-1 flex min-h-[96px] flex-col items-center justify-center">
             {user ? (
               <>
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${user.image}`}
-                  alt="Admin Avatar"
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
-                <p className="text-[17px] font-semibold leading-tight text-primary">
+                <div className="mb-2 h-12 w-12 rounded-full overflow-hidden border border-primary/20">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL}${user.image}`}
+                    alt="Admin Avatar"
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <p className="text-lg font-semibold leading-tight text-primary">
                   {user.name}
                 </p>
-                <p className="mt-0.5 text-[11px] leading-tight text-tertiary">
+                <p className="mt-0.5 text-sm leading-tight text-tertiary">
                   {user.email_address}
                 </p>
               </>
             ) : (
               <>
-                <div className="h-10 w-10 rounded-full bg-[#edf0f4]" />
+                <div className="h-12 w-12 rounded-full bg-[#edf0f4]" />
                 <div className="mt-2 h-4 w-28 rounded bg-[#edf0f4]" />
                 <div className="mt-1.5 h-3 w-36 rounded bg-[#edf0f4]" />
               </>

@@ -5,10 +5,9 @@ interface User {
   id?: string;
   email_address: string;
   is_email_verified?: boolean;
-  full_name?: string;
+  name?: string;
   role?: string;
-  profile_image?: string | null;
-  contact_number?: string;
+  image?: string | null;
   address?: string;
 }
 

@@ -25,12 +25,16 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import LogoutModal from "./LogOutModal";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function DashboardSidebar() {
   const { state } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const user = useAppSelector((state) => state.auth.user);
+
+  console.log("User in DashboardSidebar:", user);
 
   const isCollapsed = state === "collapsed";
 
@@ -119,14 +123,32 @@ export default function DashboardSidebar() {
           </Link>
         </div>
 
+        {/* admin info  */}
         {!isCollapsed && (
-          <div className="mb-4 px-1">
-            <p className="text-[17px] font-semibold leading-tight text-primary">
-              Admin User
-            </p>
-            <p className="mt-0.5 text-[11px] leading-tight text-tertiary">
-              admin@gafbi.com
-            </p>
+          <div className="mb-4 px-1 flex min-h-[96px] flex-col items-center justify-center">
+            {user ? (
+              <>
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${user.image}`}
+                  alt="Admin Avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+                <p className="text-[17px] font-semibold leading-tight text-primary">
+                  {user.name}
+                </p>
+                <p className="mt-0.5 text-[11px] leading-tight text-tertiary">
+                  {user.email_address}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="h-10 w-10 rounded-full bg-[#edf0f4]" />
+                <div className="mt-2 h-4 w-28 rounded bg-[#edf0f4]" />
+                <div className="mt-1.5 h-3 w-36 rounded bg-[#edf0f4]" />
+              </>
+            )}
           </div>
         )}
 

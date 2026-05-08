@@ -24,9 +24,9 @@ const OrderDetails = ({
     { label: "Order date", value: order.order_date },
     { label: "Delivery date", value: order.delivery_date ?? "N/A" },
     { label: "Total amount", value: order.total_amount },
-    { label: "Shipped quantity", value: String(order.shipped_quantity) },
-    { label: "Tracking number", value: order.tracking_number ?? "N/A" },
-    { label: "Shipping carrier", value: order.shipping_carrier ?? "N/A" },
+    // { label: "Shipped quantity", value: String(order.shipped_quantity) },
+    // { label: "Tracking number", value: order.tracking_number ?? "N/A" },
+    // { label: "Shipping carrier", value: order.shipping_carrier ?? "N/A" },
   ];
 
   const handlePrint = () => {

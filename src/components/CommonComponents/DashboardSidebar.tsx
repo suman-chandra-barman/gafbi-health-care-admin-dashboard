@@ -16,6 +16,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Contact,
   FileText,
   LogOut,
   Package,
@@ -59,6 +60,11 @@ export default function DashboardSidebar() {
       href: "/admin/applications",
       icon: FileText,
       label: "Applications",
+    },
+    {
+      href: "/admin/client-contacts",
+      icon: Contact,
+      label: "Client Contacts",
     },
     {
       href: "/admin/settings",
